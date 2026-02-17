@@ -48,9 +48,12 @@ export const getProviders = async (chainName: Wallet.ChainName): Promise<Wallet.
   const baseCardanoServicesUrl = getBaseUrlForChain(chainName);
   const baseKoraLabsServicesUrl = getBaseKoraLabsUrlForChain(chainName);
   const magic = getMagicForChain(chainName);
-  const { customSubmitTxUrl, featureFlags } = await getBackgroundStorage();
+  const { customSubmitTxUrl, featureFlags, customBlockfrostProjectId, customBlockfrostBaseUrl } =
+    await getBackgroundStorage();
 
   const isExperimentEnabled = (experimentName: ExperimentName) => !!(featureFlags?.[magic]?.[experimentName] ?? false);
+
+  const defaultBlockfrostConfig = BLOCKFROST_CONFIGS[chainName];
 
   return Wallet.createProviders({
     axiosAdapter: axiosFetchAdapter,
@@ -60,7 +63,9 @@ export const getProviders = async (chainName: Wallet.ChainName): Promise<Wallet.
       baseKoraLabsServicesUrl,
       customSubmitTxUrl,
       blockfrostConfig: {
-        ...BLOCKFROST_CONFIGS[chainName],
+        ...defaultBlockfrostConfig,
+        ...(customBlockfrostProjectId && { projectId: customBlockfrostProjectId }),
+        ...(customBlockfrostBaseUrl && { baseUrl: customBlockfrostBaseUrl }),
         rateLimiter,
         apiVersion: 'v0'
       }

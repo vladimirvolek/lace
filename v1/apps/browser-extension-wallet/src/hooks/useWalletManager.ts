@@ -45,6 +45,7 @@ import { deepEquals, HexBlob } from '@cardano-sdk/util';
 import { BackgroundService } from '@lib/scripts/types';
 import { getChainName } from '@src/utils/get-chain-name';
 import { useCustomSubmitApi } from '@hooks/useCustomSubmitApi';
+import { useCustomBlockfrostApi } from '@hooks/useCustomBlockfrostApi';
 import { useLMP } from '@hooks/useLMP';
 import { setBackgroundStorage } from '@lib/scripts/background/storage';
 import * as KeyManagement from '@cardano-sdk/key-management';
@@ -214,6 +215,7 @@ export interface UseWalletManager {
   ) => Promise<string[]>;
   getSharedWalletExtendedPublicKey: (passphrase: Uint8Array) => Promise<Wallet.Cardano.Cip1854ExtendedAccountPublicKey>;
   enableCustomNode: (network: EnvironmentTypes, value: string) => Promise<void>;
+  enableCustomBlockfrost: (network: EnvironmentTypes, projectId?: string, baseUrl?: string) => Promise<void>;
   generateSharedWalletKey: GenerateSharedWalletKeyFn;
   createMultiSigAccount: (props: CreateMultiSigAccountParams) => Promise<void>;
   // TODO: Unify 4 props in a single getter.
@@ -392,6 +394,7 @@ export const useWalletManager = (): UseWalletManager => {
   const backgroundService = useBackgroundServiceAPIContext();
   const userIdService = getUserIdService();
   const { getCustomSubmitApiForNetwork, updateCustomSubmitApi } = useCustomSubmitApi();
+  const { getCustomBlockfrostForNetwork, updateCustomBlockfrost } = useCustomBlockfrostApi();
   const { password, clearSecrets } = useSecrets();
   const getCurrentChainId = useCallback(() => {
     if (currentChain) return currentChain;
@@ -1177,7 +1180,12 @@ export const useWalletManager = (): UseWalletManager => {
       setAddressesDiscoveryCompleted(false);
       updateAppSettings({ ...settings, chainName });
       const customSubmitApi = getCustomSubmitApiForNetwork(chainName);
-      await setBackgroundStorage({ customSubmitTxUrl: customSubmitApi.url });
+      const customBlockfrost = getCustomBlockfrostForNetwork(chainName);
+      await setBackgroundStorage({
+        customSubmitTxUrl: customSubmitApi.url,
+        customBlockfrostProjectId: customBlockfrost.status ? customBlockfrost.projectId : undefined,
+        customBlockfrostBaseUrl: customBlockfrost.status ? customBlockfrost.baseUrl : undefined
+      });
       await reloadWallet();
 
       setCurrentChain(chainName);
@@ -1188,6 +1196,7 @@ export const useWalletManager = (): UseWalletManager => {
       updateAppSettings,
       settings,
       getCustomSubmitApiForNetwork,
+      getCustomBlockfrostForNetwork,
       reloadWallet,
       setCurrentChain,
       setCardanoCoin
@@ -1447,6 +1456,23 @@ export const useWalletManager = (): UseWalletManager => {
     [backgroundService, reloadWallet, updateCustomSubmitApi]
   );
 
+  const enableCustomBlockfrost = useCallback(
+    async (network: EnvironmentTypes, projectId?: string, baseUrl?: string) => {
+      const customData = {
+        status: !!projectId,
+        projectId: projectId || '',
+        baseUrl: baseUrl || ''
+      };
+      updateCustomBlockfrost(network, customData);
+      await backgroundService.setBackgroundStorage({
+        customBlockfrostProjectId: projectId,
+        customBlockfrostBaseUrl: baseUrl
+      });
+      await reloadWallet();
+    },
+    [backgroundService, reloadWallet, updateCustomBlockfrost]
+  );
+
   return {
     activateWallet,
     addAccount,
@@ -1471,6 +1497,7 @@ export const useWalletManager = (): UseWalletManager => {
     getMnemonic,
     getMnemonicForWallet,
     enableCustomNode,
+    enableCustomBlockfrost,
     generateSharedWalletKey,
     createMultiSigAccount,
     getSharedWalletExtendedPublicKey,
