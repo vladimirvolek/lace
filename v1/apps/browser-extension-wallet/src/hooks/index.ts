@@ -24,7 +24,7 @@ export * from './useAppInit';
 export * from './useWalletAvatar';
 export * from './useActionExecution';
 export * from './useCustomSubmitApi';
-export * from './useCustomBlockfrostApi';
+
 export * from './useCurrentWallet';
 export * from './useHasEnoughCollateral';
 export * from './useLMP';

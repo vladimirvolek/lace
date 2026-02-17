@@ -49,10 +49,7 @@ const envChecks = (chosenChain: Wallet.ChainName): void => {
     !process.env.CARDANO_SERVICES_URL_PREVIEW ||
     !process.env.BLOCKFROST_URL_MAINNET ||
     !process.env.BLOCKFROST_URL_PREPROD ||
-    !process.env.BLOCKFROST_URL_PREVIEW ||
-    !process.env.BLOCKFROST_PROJECT_ID_MAINNET ||
-    !process.env.BLOCKFROST_PROJECT_ID_PREPROD ||
-    !process.env.BLOCKFROST_PROJECT_ID_PREVIEW
+    !process.env.BLOCKFROST_URL_PREVIEW
   ) {
     throw new Error('env vars not complete');
   }
@@ -77,19 +74,19 @@ const envChecks = (chosenChain: Wallet.ChainName): void => {
 const getBlockfrostConfigs = (): ByNetwork<BlockfrostEndpoint> => ({
   Mainnet: {
     baseUrl: process.env.BLOCKFROST_URL_MAINNET,
-    projectId: process.env.BLOCKFROST_PROJECT_ID_MAINNET
+    projectId: process.env.BLOCKFROST_PROJECT_ID_MAINNET || ''
   },
   Preprod: {
     baseUrl: process.env.BLOCKFROST_URL_PREPROD,
-    projectId: process.env.BLOCKFROST_PROJECT_ID_PREPROD
+    projectId: process.env.BLOCKFROST_PROJECT_ID_PREPROD || ''
   },
   Preview: {
     baseUrl: process.env.BLOCKFROST_URL_PREVIEW,
-    projectId: process.env.BLOCKFROST_PROJECT_ID_PREVIEW
+    projectId: process.env.BLOCKFROST_PROJECT_ID_PREVIEW || ''
   },
   Sanchonet: {
     baseUrl: process.env.BLOCKFROST_URL_SANCHONET,
-    projectId: process.env.BLOCKFROST_PROJECT_ID_SANCHONET
+    projectId: process.env.BLOCKFROST_PROJECT_ID_SANCHONET || ''
   }
 });
 

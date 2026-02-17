@@ -43,12 +43,6 @@ export interface CustomSubmitApiConfig {
   url: string;
 }
 
-export interface CustomBlockfrostConfig {
-  status: boolean;
-  projectId: string;
-  baseUrl: string;
-}
-
 export type UnconfirmedTransactions = UnconfirmedTransaction[];
 
 export interface ILocalStorage {
@@ -71,7 +65,6 @@ export interface ILocalStorage {
   showMultiAddressModal?: boolean;
   userAvatar?: Record<`${EnvironmentTypes}${string}`, string>;
   isCustomSubmitApiEnabled?: Record<EnvironmentTypes, CustomSubmitApiConfig>;
-  customBlockfrostConfig?: Record<EnvironmentTypes, CustomBlockfrostConfig>;
   isReceiveInAdvancedMode?: boolean;
   hasUserAcknowledgedPrivacyPolicyUpdate?: boolean;
   showWalletConflictError?: boolean;

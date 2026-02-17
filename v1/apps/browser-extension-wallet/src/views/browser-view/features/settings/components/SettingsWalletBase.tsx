@@ -9,7 +9,7 @@ import { NetworkChoiceDrawer } from './NetworkChoiceDrawer';
 import { useWalletStore } from '@src/stores';
 import { AboutDrawer } from './AboutDrawer';
 import { config } from '@src/config';
-import { useCustomSubmitApi, useCustomBlockfrostApi, useRedirection } from '@hooks';
+import { useCustomSubmitApi, useRedirection } from '@hooks';
 import { BrowserViewSections, MessageTypes } from '@lib/scripts/types';
 import { useAnalyticsContext, useBackgroundServiceAPIContext, useExternalLinkOpener } from '@providers';
 import { useSearchParams, useObservable, Button } from '@lace/common';
@@ -19,7 +19,7 @@ import uniq from 'lodash/uniq';
 import { isKeyHashAddress } from '@cardano-sdk/wallet';
 import { AddressesDiscoveryStatus } from '@lib/communication/addresses-discoverer';
 import { CustomSubmitApiDrawer } from './CustomSubmitApiDrawer';
-import { CustomBlockfrostDrawer } from './CustomBlockfrostDrawer';
+
 import { COLLATERAL_AMOUNT_LOVELACES } from '@utils/constants';
 import { useCurrentBlockchain } from '@src/multichain';
 import { getNetworkName } from '@src/utils/get-network-name';
@@ -33,8 +33,7 @@ export enum SettingsDrawer {
   dappList = 'dappList',
   general = 'general',
   networkChoice = 'networkChoice',
-  customSubmitApi = 'customSubmitApi',
-  customBlockfrost = 'customBlockfrost'
+  customSubmitApi = 'customSubmitApi'
 }
 
 export type SettingsSearchParams<AdditionalDrawers extends string> = {
@@ -80,7 +79,7 @@ export const SettingsWalletBase = <AdditionalDrawers extends string>({
   const backgroundServices = useBackgroundServiceAPIContext();
   const analytics = useAnalyticsContext();
   const { getCustomSubmitApiForNetwork } = useCustomSubmitApi();
-  const { getCustomBlockfrostForNetwork } = useCustomBlockfrostApi();
+
   const openExternalLink = useExternalLinkOpener();
 
   const isNetworkChoiceEnabled = AVAILABLE_CHAINS.length > 1;
@@ -134,11 +133,6 @@ export const SettingsWalletBase = <AdditionalDrawers extends string>({
 
   const handleCloseCustomSubmitApiDrawer = () => handleCloseDrawer(PostHogAction.SettingsCustomSubmitApiXClick);
 
-  const handleOpenCustomBlockfrostDrawer = () =>
-    handleOpenDrawer(SettingsDrawer.customBlockfrost, PostHogAction.SettingsCustomBlockfrostClick);
-
-  const handleCloseCustomBlockfrostDrawer = () => handleCloseDrawer(PostHogAction.SettingsCustomBlockfrostXClick);
-
   const handleSendAnalyticsEvent = (postHogEvent: PostHogAction) => analytics.sendEventToPostHog(postHogEvent);
 
   const syncButton = (
@@ -183,11 +177,6 @@ export const SettingsWalletBase = <AdditionalDrawers extends string>({
       <CustomSubmitApiDrawer
         visible={activeDrawer === SettingsDrawer.customSubmitApi}
         onClose={handleCloseCustomSubmitApiDrawer}
-        popupView={popupView}
-      />
-      <CustomBlockfrostDrawer
-        visible={activeDrawer === SettingsDrawer.customBlockfrost}
-        onClose={handleCloseCustomBlockfrostDrawer}
         popupView={popupView}
       />
       <SettingsCard>
@@ -244,20 +233,6 @@ export const SettingsWalletBase = <AdditionalDrawers extends string>({
             data-testid="settings-wallet-custom-submit-api-link"
           >
             {t('browserView.settings.wallet.customSubmitApi.settingsLinkTitle')}
-          </SettingsLink>
-        )}
-        {!isBitcoinWallet && (
-          <SettingsLink
-            description={t('browserView.settings.wallet.customBlockfrost.settingsLinkDescription')}
-            onClick={handleOpenCustomBlockfrostDrawer}
-            addon={
-              getCustomBlockfrostForNetwork(environmentName).status
-                ? t('browserView.settings.wallet.customBlockfrost.enabled')
-                : t('browserView.settings.wallet.customBlockfrost.disabled')
-            }
-            data-testid="settings-wallet-custom-blockfrost-link"
-          >
-            {t('browserView.settings.wallet.customBlockfrost.settingsLinkTitle')}
           </SettingsLink>
         )}
         {!isBitcoinWallet && authorizedAppsEnabled && (

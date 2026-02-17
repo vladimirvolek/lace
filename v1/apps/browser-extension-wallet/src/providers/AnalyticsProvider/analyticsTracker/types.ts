@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
-export { PostHogAction } from '@lace/common';
+import { PostHogAction } from '@lace/common';
+export { PostHogAction };
 export type { IAnalyticsTracker } from '@lace/common';
 
 export enum EnhancedAnalyticsOptInStatus {
